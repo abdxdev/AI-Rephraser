@@ -1,5 +1,5 @@
 import 'dart:convert';
-
+import 'package:flutter/foundation.dart';
 import 'package:http/http.dart' as http;
 
 class GeminiService {
@@ -7,11 +7,6 @@ class GeminiService {
       'https://generativelanguage.googleapis.com/v1beta/models';
   static const String defaultModel = 'gemini-2.5-flash';
 
-  /// Process text using the Gemini API.
-  ///
-  /// Sends [text] with a [systemPrompt] using the fixed default model.
-  /// If [outputLanguage] is set, appends a language instruction.
-  /// Returns the processed text or throws on error.
   static Future<String> processText({
     required String text,
     required String systemPrompt,
@@ -22,7 +17,6 @@ class GeminiService {
       '$_baseUrl/$defaultModel:generateContent?key=$apiKey',
     );
 
-    // Build the effective system prompt
     String effectivePrompt = systemPrompt;
     if (outputLanguage != null && outputLanguage.isNotEmpty) {
       effectivePrompt +=
@@ -48,22 +42,33 @@ class GeminiService {
         'thinkingConfig': {'thinkingBudget': 0},
       },
     });
+
+    debugPrint('[GeminiService] Sending POST request to $_baseUrl/$defaultModel...');
     final response = await http
         .post(url, headers: {'Content-Type': 'application/json'}, body: body)
         .timeout(const Duration(seconds: 45));
+    
+    debugPrint('[GeminiService] Received response with status code: ${response.statusCode}');
+
     if (response.statusCode == 200) {
       final data = jsonDecode(response.body) as Map<String, dynamic>;
       final candidates = data['candidates'] as List?;
       if (candidates == null || candidates.isEmpty) {
+        debugPrint('[GeminiService] Error: No candidates in response');
         throw Exception('No response from AI model');
       }
       final content = candidates[0]['content'] as Map<String, dynamic>?;
       final parts = content?['parts'] as List?;
       if (parts == null || parts.isEmpty) {
+        debugPrint('[GeminiService] Error: Empty parts in response');
         throw Exception('Empty response from AI model');
       }
-      return (parts[0]['text'] as String).trim();
+      
+      final resultText = (parts[0]['text'] as String).trim();
+      debugPrint('[GeminiService] Successfully parsed response text (length: ${resultText.length})');
+      return resultText;
     } else {
+      debugPrint('[GeminiService] HTTP Error: ${response.body}');
       final errorData = jsonDecode(response.body) as Map<String, dynamic>;
       final errorMsg =
           (errorData['error'] as Map<String, dynamic>?)?['message']
@@ -73,8 +78,6 @@ class GeminiService {
     }
   }
 
-  /// Test connection to the Gemini API.
-  /// Returns null on success, or an error message on failure.
   static Future<String?> testConnection({required String apiKey}) async {
     try {
       final result = await processText(

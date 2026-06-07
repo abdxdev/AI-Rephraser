@@ -5,12 +5,10 @@ import '../models/history_entry.dart';
 class FirestoreService {
   static final FirebaseFirestore _firestore = FirebaseFirestore.instance;
 
-  // ── Get the user's history collection reference ──
   static CollectionReference _historyCollection(String userId) {
     return _firestore.collection('users').doc(userId).collection('history');
   }
 
-  // ── Fetch all history entries for a user ──
   static Future<List<HistoryEntry>> getHistory(String userId) async {
     try {
       final snapshot = await _historyCollection(
@@ -22,28 +20,25 @@ class FirestoreService {
         return HistoryEntry.fromJson({...data, 'id': doc.id});
       }).toList();
     } catch (e) {
-      // If collection doesn't exist yet or network error, return empty
+
       return [];
     }
   }
 
-  // ── Add a single history entry ──
   static Future<void> addHistoryEntry(String userId, HistoryEntry entry) async {
     try {
       await _historyCollection(userId).doc(entry.id).set(entry.toJson());
     } catch (_) {
-      // Silently fail — local storage is the fallback
+
     }
   }
 
-  // ── Delete a single history entry ──
   static Future<void> deleteHistoryEntry(String userId, String entryId) async {
     try {
       await _historyCollection(userId).doc(entryId).delete();
     } catch (_) {}
   }
 
-  // ── Clear all history for a user ──
   static Future<void> clearHistory(String userId) async {
     try {
       final snapshot = await _historyCollection(userId).get();
@@ -53,7 +48,6 @@ class FirestoreService {
     } catch (_) {}
   }
 
-  // ── Sync local history to Firestore (used on first login) ──
   static Future<void> syncLocalToCloud(
     String userId,
     List<HistoryEntry> localEntries,

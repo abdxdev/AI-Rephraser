@@ -29,6 +29,6 @@ class AuthProvider extends ChangeNotifier {
   Future<void> signOut() async {
     _isGuest = false;
     await AuthService.signOut();
-    // Setting _user to null is handled by the authStateChanges stream
+
   }
 }

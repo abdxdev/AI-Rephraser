@@ -7,11 +7,6 @@ import 'models/history_entry.dart';
 import 'services/gemini_service.dart';
 import 'services/storage_service.dart';
 
-/// Background entry point for handling process text requests.
-///
-/// This runs in a separate FlutterEngine created by the Android Application class.
-/// It listens for MethodChannel calls from ProcessTextActivity, calls the Gemini
-/// API, and returns the result.
 @pragma('vm:entry-point')
 void processTextEntrypoint() {
   WidgetsFlutterBinding.ensureInitialized();
@@ -19,12 +14,10 @@ void processTextEntrypoint() {
   const channel = MethodChannel('com.example.test_app/process_text');
 
   channel.setMethodCallHandler((call) async {
-    debugPrint('[ProcessText] Received method call: ${call.method}');
     if (call.method == 'processText') {
       final args = call.arguments as Map;
       final text = args['text'] as String;
       final actionId = args['actionId'] as String;
-      debugPrint('[ProcessText] Processing text for action: $actionId');
 
       return await _handleProcessText(text, actionId);
     }
@@ -33,38 +26,30 @@ void processTextEntrypoint() {
       message: 'Method ${call.method} not implemented',
     );
   });
-
-  debugPrint('[ProcessText] Handler registered and ready');
 }
 
 Future<String> _handleProcessText(String text, String actionId) async {
   try {
-    // Load the API key
     debugPrint('[ProcessText] Loading API key...');
     final apiKey = await StorageService.getApiKey();
     if (apiKey == null || apiKey.isEmpty) {
+      debugPrint('[ProcessText] Error: API key not configured');
       throw Exception('API key not configured. Please open the app to set up.');
     }
     debugPrint('[ProcessText] API key loaded successfully');
 
-    // Load actions to find the correct one
+    debugPrint('[ProcessText] Loading actions to find ID: $actionId');
     final actions = await StorageService.getActions();
-    debugPrint('[ProcessText] Loaded ${actions.length} actions, looking for: $actionId');
     final action = actions.firstWhere(
       (a) => a.id == actionId,
       orElse: () => throw Exception('Action "$actionId" not found'),
     );
+    debugPrint('[ProcessText] Action found: ${action.name}');
 
-    // Load settings
-    debugPrint('[ProcessText] Loading outputLanguage...');
+    debugPrint('[ProcessText] Loading settings...');
     final outputLanguage = await StorageService.getOutputLanguage();
-    debugPrint('[ProcessText] Loaded outputLanguage: $outputLanguage');
-    
-    debugPrint('[ProcessText] Loading clipboardBackup...');
     final clipboardBackup = await StorageService.getClipboardBackup();
-    debugPrint('[ProcessText] Loaded clipboardBackup: $clipboardBackup');
 
-    // Copy original to clipboard if preference is set
     if (clipboardBackup) {
       debugPrint('[ProcessText] Attempting to backup to clipboard...');
       try {
@@ -72,13 +57,11 @@ Future<String> _handleProcessText(String text, String actionId) async {
             .timeout(const Duration(milliseconds: 500));
         debugPrint('[ProcessText] Clipboard backup successful');
       } catch (e) {
-        debugPrint('[ProcessText] Clipboard backup failed or timed out: $e');
-        // Ignore clipboard errors in background engine
+        debugPrint('[ProcessText] Clipboard backup failed/timed out: $e');
       }
     }
 
-    // Call Gemini API
-    debugPrint('[ProcessText] Calling Gemini API with model=${GeminiService.defaultModel}...');
+    debugPrint('[ProcessText] Calling Gemini API...');
     final result = await GeminiService.processText(
       text: text,
       systemPrompt: action.effectivePrompt,
@@ -87,7 +70,7 @@ Future<String> _handleProcessText(String text, String actionId) async {
     );
     debugPrint('[ProcessText] Gemini API returned successfully');
 
-    // Save to history if enabled
+    debugPrint('[ProcessText] Saving to history...');
     final historyEnabled = await StorageService.getHistoryEnabled();
     if (historyEnabled) {
       final entry = HistoryEntry(
@@ -98,18 +81,16 @@ Future<String> _handleProcessText(String text, String actionId) async {
         resultText: result,
       );
       await StorageService.addHistoryEntry(entry);
+      debugPrint('[ProcessText] Saved to history');
     }
 
+    debugPrint('[ProcessText] Processing complete');
     return result;
   } catch (e) {
-    debugPrint('[ProcessText] Error: $e');
-    // On error, return the original text unchanged
-    // The error message goes back to Kotlin as an exception,
-    // which shows a Toast
+    debugPrint('[ProcessText] Error during processing: $e');
     throw PlatformException(
       code: 'PROCESSING_ERROR',
       message: e.toString().replaceFirst('Exception: ', ''),
     );
   }
 }
-

@@ -71,10 +71,8 @@ class TextAction {
     );
   }
 
-  /// Get the effective prompt (custom override or default)
   String get effectivePrompt => customPromptOverride ?? systemPrompt;
 
-  /// Resolve icon from name
   IconData get icon => iconMap[iconName] ?? Icons.auto_fix_high;
 
   static List<TextAction> get defaultActions => [

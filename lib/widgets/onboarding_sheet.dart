@@ -4,7 +4,6 @@ import 'package:provider/provider.dart';
 import '../providers/app_provider.dart';
 import '../screens/api_settings_screen.dart';
 
-/// First-launch onboarding bottom sheet guiding user to set up API key.
 class OnboardingSheet extends StatelessWidget {
   const OnboardingSheet({super.key});
 
@@ -27,7 +26,7 @@ class OnboardingSheet extends StatelessWidget {
             controller: scrollController,
             padding: const EdgeInsets.all(24),
             children: [
-              // Handle
+
               Center(
                 child: Container(
                   width: 32,
@@ -40,7 +39,6 @@ class OnboardingSheet extends StatelessWidget {
                 ),
               ),
 
-              // Icon
               Center(
                 child: Container(
                   width: 80,
@@ -58,7 +56,6 @@ class OnboardingSheet extends StatelessWidget {
               ),
               const SizedBox(height: 24),
 
-              // Title
               Center(
                 child: Text(
                   'Welcome to AI Text',
@@ -79,7 +76,6 @@ class OnboardingSheet extends StatelessWidget {
               ),
               const SizedBox(height: 32),
 
-              // Steps
               _StepItem(
                 number: '1',
                 title: 'Set up your API key',
@@ -102,7 +98,6 @@ class OnboardingSheet extends StatelessWidget {
               ),
               const SizedBox(height: 32),
 
-              // CTA
               FilledButton.icon(
                 onPressed: () {
                   final provider = context.read<AppProvider>();

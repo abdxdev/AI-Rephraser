@@ -17,7 +17,7 @@ class _HistoryScreenState extends State<HistoryScreen> {
   @override
   void initState() {
     super.initState();
-    // Reload history from storage each time screen opens
+
     WidgetsBinding.instance.addPostFrameCallback((_) {
       context.read<AppProvider>().reloadHistory();
     });

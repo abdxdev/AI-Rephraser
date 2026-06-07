@@ -38,7 +38,7 @@ class _ApiSettingsScreenState extends State<ApiSettingsScreen> {
       body: ListView(
         padding: const EdgeInsets.all(16),
         children: [
-          // API Key Card
+
           Card(
             child: Padding(
               padding: const EdgeInsets.all(20),
@@ -86,7 +86,7 @@ class _ApiSettingsScreenState extends State<ApiSettingsScreen> {
                                     content: Text('API key saved. Testing connection...'),
                                   ),
                                 );
-                                // Auto-test the connection after saving
+
                                 provider.testConnection();
                               }
                             },
@@ -108,7 +108,6 @@ class _ApiSettingsScreenState extends State<ApiSettingsScreen> {
           ),
           const SizedBox(height: 16),
 
-          // Test Connection Card
           Card(
             child: Padding(
               padding: const EdgeInsets.all(20),

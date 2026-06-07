@@ -29,12 +29,10 @@ class HistoryEntry {
     resultText: json['resultText'] as String,
   );
 
-  /// Preview of original text (first 80 chars)
   String get originalPreview => originalText.length > 80
       ? '${originalText.substring(0, 80)}…'
       : originalText;
 
-  /// Preview of result text (first 80 chars)
   String get resultPreview =>
       resultText.length > 80 ? '${resultText.substring(0, 80)}…' : resultText;
 }

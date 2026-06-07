@@ -35,7 +35,7 @@ class PreferencesScreen extends StatelessWidget {
       body: ListView(
         padding: const EdgeInsets.all(16),
         children: [
-          // Theme Card
+
           Card(
             child: Padding(
               padding: const EdgeInsets.all(8),
@@ -81,7 +81,6 @@ class PreferencesScreen extends StatelessWidget {
           ),
           const SizedBox(height: 16),
 
-          // Behavior Card
           Card(
             child: Padding(
               padding: const EdgeInsets.all(8),
@@ -118,7 +117,6 @@ class PreferencesScreen extends StatelessWidget {
           ),
           const SizedBox(height: 16),
 
-          // Language Card
           Card(
             child: Padding(
               padding: const EdgeInsets.all(16),
@@ -169,7 +167,6 @@ class PreferencesScreen extends StatelessWidget {
           ),
           const SizedBox(height: 16),
 
-          // About Card
           Card(
             child: Padding(
               padding: const EdgeInsets.all(16),

@@ -25,7 +25,7 @@ class HomeScreen extends StatelessWidget {
             padding: const EdgeInsets.symmetric(horizontal: 16),
             sliver: SliverList.list(
               children: [
-                // Status Card
+
                 Card(
                   child: Padding(
                     padding: const EdgeInsets.all(20),
@@ -89,7 +89,6 @@ class HomeScreen extends StatelessWidget {
                 ),
                 const SizedBox(height: 16),
 
-                // Summary
                 Card(
                   child: Padding(
                     padding: const EdgeInsets.all(20),
@@ -118,7 +117,6 @@ class HomeScreen extends StatelessWidget {
                 ),
                 const SizedBox(height: 24),
 
-                // Quick toggles header
                 Padding(
                   padding: const EdgeInsets.only(left: 4, bottom: 12),
                   child: Text(
@@ -129,7 +127,6 @@ class HomeScreen extends StatelessWidget {
                   ),
                 ),
 
-                // Action toggle cards
                 ...provider.actions.map(
                   (action) => Padding(
                     padding: const EdgeInsets.only(bottom: 8),

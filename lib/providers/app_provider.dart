@@ -21,7 +21,6 @@ class AppProvider extends ChangeNotifier {
   String? _connectionTestResult;
   bool _isTesting = false;
 
-  // Getters
   List<TextAction> get actions => _actions;
   List<TextAction> get builtInActions =>
       _actions.where((a) => a.isBuiltIn).toList()
@@ -56,7 +55,6 @@ class AppProvider extends ChangeNotifier {
     }
   }
 
-  /// Load all data from storage
   Future<void> loadAll() async {
     _isLoading = true;
     notifyListeners();
@@ -80,11 +78,8 @@ class AppProvider extends ChangeNotifier {
     if (AuthService.isLoggedIn && AuthService.userId != null) {
       final userId = AuthService.userId!;
 
-      // Get remote history
       final remoteHistory = await FirestoreService.getHistory(userId);
 
-      // If we have local history but remote is empty, we might need to push local history up.
-      // But for simplicity let's just use remote history if it exists, or push local if remote is empty.
       if (remoteHistory.isEmpty && _history.isNotEmpty) {
         await FirestoreService.syncLocalToCloud(userId, _history);
       } else if (remoteHistory.isNotEmpty) {
@@ -94,18 +89,16 @@ class AppProvider extends ChangeNotifier {
     }
   }
 
-  // ---------- API Key ----------
-
   Future<void> setApiKey(String key) async {
     _apiKey = key;
     await StorageService.setApiKey(key);
     notifyListeners();
   }
 
-  // ---------- Connection Test ----------
-
   Future<void> testConnection() async {
+    debugPrint('[AppProvider] Testing API connection...');
     if (!isApiConfigured) {
+      debugPrint('[AppProvider] Test failed: API key not configured');
       _connectionTestResult = 'API key not configured';
       notifyListeners();
       return;
@@ -115,16 +108,16 @@ class AppProvider extends ChangeNotifier {
     _connectionTestResult = null;
     notifyListeners();
 
+    debugPrint('[AppProvider] Calling GeminiService.testConnection...');
     final error = await GeminiService.testConnection(
       apiKey: _apiKey!,
     );
 
     _isTesting = false;
     _connectionTestResult = error ?? 'Connected successfully!';
+    debugPrint('[AppProvider] Connection test complete. Result: $_connectionTestResult');
     notifyListeners();
   }
-
-  // ---------- Actions ----------
 
   Future<void> toggleAction(String actionId, bool enabled) async {
     final idx = _actions.indexWhere((a) => a.id == actionId);
@@ -165,15 +158,13 @@ class AppProvider extends ChangeNotifier {
     notifyListeners();
   }
 
-  // ---------- Custom Actions ----------
-
   Future<void> addCustomAction({
     required String name,
     required String systemPrompt,
     String? modelOverride,
     String iconName = 'auto_fix_high',
   }) async {
-    // Find the next available custom slot
+
     final usedSlots = _actions
         .where((a) => a.id.startsWith('custom_'))
         .map((a) => a.id)
@@ -235,8 +226,6 @@ class AppProvider extends ChangeNotifier {
     notifyListeners();
   }
 
-  // ---------- History ----------
-
   Future<void> reloadHistory() async {
     if (AuthService.isLoggedIn && AuthService.userId != null) {
       _history = await FirestoreService.getHistory(AuthService.userId!);
@@ -267,8 +256,6 @@ class AppProvider extends ChangeNotifier {
     }
     notifyListeners();
   }
-
-  // ---------- Preferences ----------
 
   Future<void> setClipboardBackup(bool value) async {
     _clipboardBackup = value;

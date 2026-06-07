@@ -4,11 +4,11 @@ import 'package:provider/provider.dart';
 
 import 'providers/app_provider.dart';
 import 'providers/auth_provider.dart';
-import 'screens/home_screen.dart';
 import 'screens/custom_actions_screen.dart';
 import 'screens/history_screen.dart';
-import 'screens/settings_screen.dart';
+import 'screens/home_screen.dart';
 import 'screens/login_screen.dart';
+import 'screens/settings_screen.dart';
 import 'widgets/onboarding_sheet.dart';
 
 class AITextApp extends StatelessWidget {

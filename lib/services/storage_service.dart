@@ -5,7 +5,6 @@ import 'package:shared_preferences/shared_preferences.dart';
 
 import '../models/history_entry.dart';
 import '../models/text_action.dart';
-import 'gemini_service.dart';
 
 class StorageService {
   static const _secureStorage = FlutterSecureStorage();
@@ -17,9 +16,6 @@ class StorageService {
   static const _themeModeKey = 'theme_mode';
   static const _historyEnabledKey = 'history_enabled';
   static const _onboardingCompleteKey = 'onboarding_complete';
-
-  // ---------- API Key (secure) ----------
-
   static const String _encryptionKey = 'gemini_api_key_secret_123!';
 
   static String _encrypt(String text) {
@@ -44,7 +40,7 @@ class StorageService {
       }
       return utf8.decode(decryptedBytes);
     } catch (_) {
-      return text; // Fallback for unencrypted older keys
+      return text;
     }
   }
 
@@ -64,18 +60,6 @@ class StorageService {
   static Future<void> deleteApiKey() async {
     await _secureStorage.delete(key: _apiKeyKey);
   }
-
-  // ---------- Model ----------
-
-  static Future<String> getModel() async {
-    return GeminiService.defaultModel;
-  }
-
-  static Future<void> setModel(String model) async {
-    return;
-  }
-
-  // ---------- Actions ----------
 
   static Future<List<TextAction>> getActions() async {
     final prefs = await SharedPreferences.getInstance();
@@ -98,8 +82,6 @@ class StorageService {
     await prefs.setString(_actionsKey, json);
   }
 
-  // ---------- History ----------
-
   static Future<List<HistoryEntry>> getHistory() async {
     final prefs = await SharedPreferences.getInstance();
     final json = prefs.getString(_historyKey);
@@ -117,7 +99,6 @@ class StorageService {
 
   static Future<void> saveHistory(List<HistoryEntry> entries) async {
     final prefs = await SharedPreferences.getInstance();
-    // Keep only the last 50 entries
     final trimmed = entries.length > 50
         ? entries.sublist(entries.length - 50)
         : entries;
@@ -135,8 +116,6 @@ class StorageService {
     final prefs = await SharedPreferences.getInstance();
     await prefs.remove(_historyKey);
   }
-
-  // ---------- Preferences ----------
 
   static Future<bool> getClipboardBackup() async {
     final prefs = await SharedPreferences.getInstance();

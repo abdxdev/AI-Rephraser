@@ -4,7 +4,6 @@ import 'package:provider/provider.dart';
 import '../models/text_action.dart';
 import '../providers/app_provider.dart';
 
-/// Bottom sheet for creating or editing a custom action.
 class CustomActionSheet extends StatefulWidget {
   final TextAction? editAction;
 
@@ -62,7 +61,7 @@ class _CustomActionSheetState extends State<CustomActionSheet> {
               controller: scrollController,
               padding: const EdgeInsets.all(24),
               children: [
-                // Handle
+
                 Center(
                   child: Container(
                     width: 32,
@@ -77,14 +76,12 @@ class _CustomActionSheetState extends State<CustomActionSheet> {
                   ),
                 ),
 
-                // Title
                 Text(
                   isEditing ? 'Edit Action' : 'New Custom Action',
                   style: theme.textTheme.headlineSmall,
                 ),
                 const SizedBox(height: 24),
 
-                // Name field
                 TextFormField(
                   controller: _nameController,
                   decoration: const InputDecoration(
@@ -97,7 +94,6 @@ class _CustomActionSheetState extends State<CustomActionSheet> {
                 ),
                 const SizedBox(height: 16),
 
-                // Prompt field
                 TextFormField(
                   controller: _promptController,
                   maxLines: 4,
@@ -114,7 +110,6 @@ class _CustomActionSheetState extends State<CustomActionSheet> {
                 ),
                 const SizedBox(height: 24),
 
-                // Icon picker
                 Text('Icon', style: theme.textTheme.labelLarge),
                 const SizedBox(height: 8),
                 Wrap(
@@ -139,7 +134,6 @@ class _CustomActionSheetState extends State<CustomActionSheet> {
 
                 const SizedBox(height: 32),
 
-                // Action buttons
                 Row(
                   children: [
                     Expanded(
