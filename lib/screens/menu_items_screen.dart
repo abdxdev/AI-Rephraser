@@ -3,7 +3,6 @@ import 'package:provider/provider.dart';
 
 import '../models/text_action.dart';
 import '../providers/app_provider.dart';
-import '../services/gemini_service.dart';
 
 class MenuItemsScreen extends StatelessWidget {
   const MenuItemsScreen({super.key});
@@ -100,7 +99,6 @@ class _ActionTile extends StatelessWidget {
             value: action.isEnabled,
             onChanged: (val) => provider.toggleAction(action.id, val),
           ),
-          // Expandable prompt customization
           ExpansionTile(
             title: Text(
               'Customize',
@@ -116,8 +114,6 @@ class _ActionTile extends StatelessWidget {
             ),
             children: [
               _PromptEditor(action: action),
-              const SizedBox(height: 12),
-              _ModelOverrideSelector(action: action),
             ],
           ),
         ],
@@ -199,43 +195,6 @@ class _PromptEditorState extends State<_PromptEditor> {
               ],
             ),
           ),
-        ),
-      ],
-    );
-  }
-}
-
-class _ModelOverrideSelector extends StatelessWidget {
-  final TextAction action;
-
-  const _ModelOverrideSelector({required this.action});
-
-  @override
-  Widget build(BuildContext context) {
-    final provider = context.read<AppProvider>();
-    final theme = Theme.of(context);
-
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Text('Model Override', style: theme.textTheme.labelMedium),
-        const SizedBox(height: 8),
-        DropdownMenu<String>(
-          initialSelection: action.modelOverride ?? '',
-          hintText: 'Use default model',
-          expandedInsets: EdgeInsets.zero,
-          onSelected: (value) {
-            provider.updateActionModelOverride(
-              action.id,
-              value == null || value.isEmpty ? null : value,
-            );
-          },
-          dropdownMenuEntries: [
-            const DropdownMenuEntry(value: '', label: 'Use default'),
-            ...GeminiService.availableModels.map(
-              (m) => DropdownMenuEntry(value: m, label: m),
-            ),
-          ],
         ),
       ],
     );

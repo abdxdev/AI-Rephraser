@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
 import '../providers/app_provider.dart';
-import '../services/gemini_service.dart';
 
 class ApiSettingsScreen extends StatefulWidget {
   const ApiSettingsScreen({super.key});
@@ -100,46 +99,6 @@ class _ApiSettingsScreenState extends State<ApiSettingsScreen> {
                     'Get your API key from Google AI Studio: ai.google.dev',
                     style: theme.textTheme.bodySmall?.copyWith(
                       color: colorScheme.onSurfaceVariant,
-                    ),
-                  ),
-                ],
-              ),
-            ),
-          ),
-          const SizedBox(height: 16),
-
-          // Model Selection Card
-          Card(
-            child: Padding(
-              padding: const EdgeInsets.all(20),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Row(
-                    children: [
-                      Icon(Icons.smart_toy, color: colorScheme.primary),
-                      const SizedBox(width: 12),
-                      Text('Model', style: theme.textTheme.titleMedium),
-                    ],
-                  ),
-                  const SizedBox(height: 16),
-                  RadioGroup<String>(
-                    groupValue: provider.model,
-                    onChanged: (value) {
-                      if (value != null) provider.setModel(value);
-                    },
-                    child: Column(
-                      children: GeminiService.availableModels
-                          .map(
-                            (model) => RadioListTile<String>(
-                              title: Text(model),
-                              value: model,
-                              shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(12),
-                              ),
-                            ),
-                          )
-                          .toList(),
                     ),
                   ),
                 ],

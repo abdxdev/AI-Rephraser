@@ -5,11 +5,11 @@ import 'package:shared_preferences/shared_preferences.dart';
 
 import '../models/history_entry.dart';
 import '../models/text_action.dart';
+import 'gemini_service.dart';
 
 class StorageService {
   static const _secureStorage = FlutterSecureStorage();
   static const _apiKeyKey = 'api_key';
-  static const _modelKey = 'gemini_model';
   static const _actionsKey = 'actions';
   static const _historyKey = 'history';
   static const _clipboardBackupKey = 'clipboard_backup';
@@ -35,13 +35,11 @@ class StorageService {
   // ---------- Model ----------
 
   static Future<String> getModel() async {
-    final prefs = await SharedPreferences.getInstance();
-    return prefs.getString(_modelKey) ?? 'gemini-2.5-flash';
+    return GeminiService.defaultModel;
   }
 
   static Future<void> setModel(String model) async {
-    final prefs = await SharedPreferences.getInstance();
-    await prefs.setString(_modelKey, model);
+    return;
   }
 
   // ---------- Actions ----------

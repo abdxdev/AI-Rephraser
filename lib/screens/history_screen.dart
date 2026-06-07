@@ -4,6 +4,7 @@ import 'package:provider/provider.dart';
 
 import '../models/history_entry.dart';
 import '../providers/app_provider.dart';
+import '../providers/auth_provider.dart';
 
 class HistoryScreen extends StatefulWidget {
   const HistoryScreen({super.key});
@@ -25,6 +26,7 @@ class _HistoryScreenState extends State<HistoryScreen> {
   @override
   Widget build(BuildContext context) {
     final provider = context.watch<AppProvider>();
+    final authProvider = context.watch<AuthProvider>();
     final theme = Theme.of(context);
     final colorScheme = theme.colorScheme;
     final history = provider.history;
@@ -43,6 +45,24 @@ class _HistoryScreenState extends State<HistoryScreen> {
                 ),
             ],
           ),
+          if (authProvider.user == null)
+            SliverToBoxAdapter(
+              child: MaterialBanner(
+                padding: const EdgeInsets.all(16),
+                leading: const Icon(Icons.cloud_sync),
+                content: const Text(
+                  'Sign in to sync your history across devices.',
+                ),
+                actions: [
+                  TextButton(
+                    onPressed: () {
+                      context.read<AuthProvider>().signOut();
+                    },
+                    child: const Text('SIGN IN'),
+                  ),
+                ],
+              ),
+            ),
           if (!provider.historyEnabled)
             SliverPadding(
               padding: const EdgeInsets.all(16),

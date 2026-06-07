@@ -23,7 +23,7 @@ class SettingsScreen extends StatelessWidget {
                 _SettingsTile(
                   icon: Icons.key,
                   title: 'API Settings',
-                  subtitle: 'Gemini API key & model selection',
+                  subtitle: 'Gemini API key and fixed model',
                   color: colorScheme.primaryContainer,
                   iconColor: colorScheme.onPrimaryContainer,
                   onTap: () => Navigator.push(

@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "50298348913",
+    "project_id": "abdxdev-ai-rephraser-v1",
+    "storage_bucket": "abdxdev-ai-rephraser-v1.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:50298348913:android:e9bfc2745f8ca7ac5542d0",
+        "android_client_info": {
+          "package_name": "com.example.test_app"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCRBNVy6fdBSNk5mhsyoSJAUeCPBxVDWq4"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

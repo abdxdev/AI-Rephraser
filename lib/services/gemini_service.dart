@@ -5,20 +5,21 @@ import 'package:http/http.dart' as http;
 class GeminiService {
   static const String _baseUrl =
       'https://generativelanguage.googleapis.com/v1beta/models';
+  static const String defaultModel = 'gemini-2.5-flash';
 
   /// Process text using the Gemini API.
   ///
-  /// Sends [text] with a [systemPrompt] to the specified [model].
+  /// Sends [text] with a [systemPrompt] using the fixed default model.
   /// If [outputLanguage] is set, appends a language instruction.
   /// Returns the processed text or throws on error.
   static Future<String> processText({
     required String text,
     required String systemPrompt,
     required String apiKey,
-    required String model,
     String? outputLanguage,
   }) async {
-    final url = Uri.parse('$_baseUrl/$model:generateContent?key=$apiKey');
+    final url =
+        Uri.parse('$_baseUrl/$defaultModel:generateContent?key=$apiKey');
 
     // Build the effective system prompt
     String effectivePrompt = systemPrompt;
@@ -73,14 +74,12 @@ class GeminiService {
   /// Returns null on success, or an error message on failure.
   static Future<String?> testConnection({
     required String apiKey,
-    required String model,
   }) async {
     try {
       final result = await processText(
         text: 'Hello',
         systemPrompt: 'Reply with exactly: Connection successful',
         apiKey: apiKey,
-        model: model,
       );
       if (result.isNotEmpty) return null; // Success
       return 'Empty response from API';
@@ -88,13 +87,4 @@ class GeminiService {
       return e.toString().replaceFirst('Exception: ', '');
     }
   }
-
-  /// Available Gemini models
-  static const List<String> availableModels = [
-    'gemini-2.5-flash',
-    'gemini-2.0-flash',
-    'gemini-2.0-flash-lite',
-    'gemini-1.5-flash',
-    'gemini-1.5-pro',
-  ];
 }

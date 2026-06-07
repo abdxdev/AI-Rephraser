@@ -3,7 +3,6 @@ import 'package:provider/provider.dart';
 
 import '../models/text_action.dart';
 import '../providers/app_provider.dart';
-import '../services/gemini_service.dart';
 
 /// Bottom sheet for creating or editing a custom action.
 class CustomActionSheet extends StatefulWidget {
@@ -19,7 +18,6 @@ class _CustomActionSheetState extends State<CustomActionSheet> {
   late TextEditingController _nameController;
   late TextEditingController _promptController;
   String _selectedIcon = 'auto_fix_high';
-  String? _modelOverride;
   final _formKey = GlobalKey<FormState>();
 
   bool get isEditing => widget.editAction != null;
@@ -34,7 +32,6 @@ class _CustomActionSheetState extends State<CustomActionSheet> {
       text: widget.editAction?.systemPrompt ?? '',
     );
     _selectedIcon = widget.editAction?.iconName ?? 'auto_fix_high';
-    _modelOverride = widget.editAction?.modelOverride;
   }
 
   @override
@@ -140,30 +137,6 @@ class _CustomActionSheetState extends State<CustomActionSheet> {
                 ),
                 const SizedBox(height: 24),
 
-                // Model override
-                Text(
-                  'Model Override (optional)',
-                  style: theme.textTheme.labelLarge,
-                ),
-                const SizedBox(height: 8),
-                DropdownMenu<String>(
-                  initialSelection: _modelOverride ?? '',
-                  hintText: 'Use default model',
-                  expandedInsets: EdgeInsets.zero,
-                  onSelected: (value) {
-                    setState(
-                      () => _modelOverride = value == null || value.isEmpty
-                          ? null
-                          : value,
-                    );
-                  },
-                  dropdownMenuEntries: [
-                    const DropdownMenuEntry(value: '', label: 'Use default'),
-                    ...GeminiService.availableModels.map(
-                      (m) => DropdownMenuEntry(value: m, label: m),
-                    ),
-                  ],
-                ),
                 const SizedBox(height: 32),
 
                 // Action buttons
@@ -205,14 +178,12 @@ class _CustomActionSheetState extends State<CustomActionSheet> {
         actionId: widget.editAction!.id,
         name: name,
         systemPrompt: prompt,
-        modelOverride: _modelOverride,
         iconName: _selectedIcon,
       );
     } else {
       provider.addCustomAction(
         name: name,
         systemPrompt: prompt,
-        modelOverride: _modelOverride,
         iconName: _selectedIcon,
       );
     }

@@ -48,8 +48,6 @@ Future<String> _handleProcessText(String text, String actionId) async {
     );
 
     // Load settings
-    final defaultModel = await StorageService.getModel();
-    final model = action.modelOverride ?? defaultModel;
     final outputLanguage = await StorageService.getOutputLanguage();
     final clipboardBackup = await StorageService.getClipboardBackup();
 
@@ -63,7 +61,6 @@ Future<String> _handleProcessText(String text, String actionId) async {
       text: text,
       systemPrompt: action.effectivePrompt,
       apiKey: apiKey,
-      model: model,
       outputLanguage: outputLanguage,
     );
 

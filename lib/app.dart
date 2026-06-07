@@ -3,10 +3,12 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
 import 'providers/app_provider.dart';
+import 'providers/auth_provider.dart';
 import 'screens/home_screen.dart';
 import 'screens/custom_actions_screen.dart';
 import 'screens/history_screen.dart';
 import 'screens/settings_screen.dart';
+import 'screens/login_screen.dart';
 import 'widgets/onboarding_sheet.dart';
 
 class AITextApp extends StatelessWidget {
@@ -17,6 +19,7 @@ class AITextApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final provider = context.watch<AppProvider>();
+    final authProvider = context.watch<AuthProvider>();
 
     return DynamicColorBuilder(
       builder: (ColorScheme? lightDynamic, ColorScheme? darkDynamic) {
@@ -39,7 +42,11 @@ class AITextApp extends StatelessWidget {
           themeMode: provider.themeModeEnum,
           theme: ThemeData(colorScheme: lightScheme, useMaterial3: true),
           darkTheme: ThemeData(colorScheme: darkScheme, useMaterial3: true),
-          home: provider.isLoading ? const _LoadingSplash() : const _AppShell(),
+          home: (provider.isLoading || authProvider.isLoading)
+              ? const _LoadingSplash()
+              : authProvider.isAuthenticated
+              ? const _AppShell()
+              : const LoginScreen(),
         );
       },
     );

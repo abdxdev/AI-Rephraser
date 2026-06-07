@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 
 import '../models/history_entry.dart';
 import '../models/text_action.dart';
+import '../services/auth_service.dart';
+import '../services/firestore_service.dart';
 import '../services/gemini_service.dart';
 import '../services/platform_service.dart';
 import '../services/storage_service.dart';
@@ -10,7 +12,6 @@ class AppProvider extends ChangeNotifier {
   List<TextAction> _actions = [];
   List<HistoryEntry> _history = [];
   String? _apiKey;
-  String _model = 'gemini-2.5-flash';
   bool _clipboardBackup = true;
   String? _outputLanguage;
   String _themeMode = 'system';
@@ -33,7 +34,7 @@ class AppProvider extends ChangeNotifier {
         ..sort((a, b) => a.order.compareTo(b.order));
   List<HistoryEntry> get history => _history.reversed.toList();
   String? get apiKey => _apiKey;
-  String get model => _model;
+  String get model => GeminiService.defaultModel;
   bool get clipboardBackup => _clipboardBackup;
   String? get outputLanguage => _outputLanguage;
   String get themeMode => _themeMode;
@@ -61,7 +62,6 @@ class AppProvider extends ChangeNotifier {
     notifyListeners();
 
     _apiKey = await StorageService.getApiKey();
-    _model = await StorageService.getModel();
     _actions = await StorageService.getActions();
     _history = await StorageService.getHistory();
     _clipboardBackup = await StorageService.getClipboardBackup();
@@ -70,8 +70,28 @@ class AppProvider extends ChangeNotifier {
     _historyEnabled = await StorageService.getHistoryEnabled();
     _onboardingComplete = await StorageService.isOnboardingComplete();
 
+    await _syncHistoryIfLoggedIn();
+
     _isLoading = false;
     notifyListeners();
+  }
+
+  Future<void> _syncHistoryIfLoggedIn() async {
+    if (AuthService.isLoggedIn && AuthService.userId != null) {
+      final userId = AuthService.userId!;
+
+      // Get remote history
+      final remoteHistory = await FirestoreService.getHistory(userId);
+
+      // If we have local history but remote is empty, we might need to push local history up.
+      // But for simplicity let's just use remote history if it exists, or push local if remote is empty.
+      if (remoteHistory.isEmpty && _history.isNotEmpty) {
+        await FirestoreService.syncLocalToCloud(userId, _history);
+      } else if (remoteHistory.isNotEmpty) {
+        _history = remoteHistory;
+        await StorageService.saveHistory(_history);
+      }
+    }
   }
 
   // ---------- API Key ----------
@@ -79,14 +99,6 @@ class AppProvider extends ChangeNotifier {
   Future<void> setApiKey(String key) async {
     _apiKey = key;
     await StorageService.setApiKey(key);
-    notifyListeners();
-  }
-
-  // ---------- Model ----------
-
-  Future<void> setModel(String model) async {
-    _model = model;
-    await StorageService.setModel(model);
     notifyListeners();
   }
 
@@ -105,7 +117,6 @@ class AppProvider extends ChangeNotifier {
 
     final error = await GeminiService.testConnection(
       apiKey: _apiKey!,
-      model: _model,
     );
 
     _isTesting = false;
@@ -227,13 +238,33 @@ class AppProvider extends ChangeNotifier {
   // ---------- History ----------
 
   Future<void> reloadHistory() async {
-    _history = await StorageService.getHistory();
+    if (AuthService.isLoggedIn && AuthService.userId != null) {
+      _history = await FirestoreService.getHistory(AuthService.userId!);
+      await StorageService.saveHistory(_history);
+    } else {
+      _history = await StorageService.getHistory();
+    }
+    notifyListeners();
+  }
+
+  Future<void> addHistoryEntry(HistoryEntry entry) async {
+    if (!_historyEnabled) return;
+
+    await StorageService.addHistoryEntry(entry);
+    _history.add(entry);
+
+    if (AuthService.isLoggedIn && AuthService.userId != null) {
+      await FirestoreService.addHistoryEntry(AuthService.userId!, entry);
+    }
     notifyListeners();
   }
 
   Future<void> clearHistory() async {
     _history.clear();
     await StorageService.clearHistory();
+    if (AuthService.isLoggedIn && AuthService.userId != null) {
+      await FirestoreService.clearHistory(AuthService.userId!);
+    }
     notifyListeners();
   }
 
