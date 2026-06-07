@@ -20,12 +20,45 @@ class StorageService {
 
   // ---------- API Key (secure) ----------
 
+  static const String _encryptionKey = 'gemini_api_key_secret_123!';
+
+  static String _encrypt(String text) {
+    if (text.isEmpty) return text;
+    final textBytes = utf8.encode(text);
+    final keyBytes = utf8.encode(_encryptionKey);
+    final encryptedBytes = <int>[];
+    for (int i = 0; i < textBytes.length; i++) {
+      encryptedBytes.add(textBytes[i] ^ keyBytes[i % keyBytes.length]);
+    }
+    return base64.encode(encryptedBytes);
+  }
+
+  static String _decrypt(String text) {
+    if (text.isEmpty) return text;
+    try {
+      final encryptedBytes = base64.decode(text);
+      final keyBytes = utf8.encode(_encryptionKey);
+      final decryptedBytes = <int>[];
+      for (int i = 0; i < encryptedBytes.length; i++) {
+        decryptedBytes.add(encryptedBytes[i] ^ keyBytes[i % keyBytes.length]);
+      }
+      return utf8.decode(decryptedBytes);
+    } catch (_) {
+      return text; // Fallback for unencrypted older keys
+    }
+  }
+
   static Future<String?> getApiKey() async {
-    return await _secureStorage.read(key: _apiKeyKey);
+    final key = await _secureStorage.read(key: _apiKeyKey);
+    if (key != null) {
+      return _decrypt(key);
+    }
+    return null;
   }
 
   static Future<void> setApiKey(String key) async {
-    await _secureStorage.write(key: _apiKeyKey, value: key);
+    final encryptedKey = _encrypt(key);
+    await _secureStorage.write(key: _apiKeyKey, value: encryptedKey);
   }
 
   static Future<void> deleteApiKey() async {
