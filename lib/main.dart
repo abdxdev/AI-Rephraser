@@ -7,8 +7,12 @@ import 'providers/app_provider.dart';
 import 'providers/auth_provider.dart';
 import 'firebase_options.dart';
 
-// Re-export the background entry point so the Dart compiler includes it
-export 'process_text_handler.dart';
+import 'process_text_handler.dart' as handler;
+
+@pragma('vm:entry-point')
+void processTextEntrypoint() {
+  handler.processTextEntrypoint();
+}
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();

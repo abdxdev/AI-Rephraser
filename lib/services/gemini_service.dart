@@ -18,8 +18,9 @@ class GeminiService {
     required String apiKey,
     String? outputLanguage,
   }) async {
-    final url =
-        Uri.parse('$_baseUrl/$defaultModel:generateContent?key=$apiKey');
+    final url = Uri.parse(
+      '$_baseUrl/$defaultModel:generateContent?key=$apiKey',
+    );
 
     // Build the effective system prompt
     String effectivePrompt = systemPrompt;
@@ -41,13 +42,15 @@ class GeminiService {
           ],
         },
       ],
-      'generationConfig': {'temperature': 0.7, 'maxOutputTokens': 2048},
+      'generationConfig': {
+        'temperature': 0.7,
+        'maxOutputTokens': 2048,
+        'thinkingConfig': {'thinkingBudget': 0},
+      },
     });
-
     final response = await http
         .post(url, headers: {'Content-Type': 'application/json'}, body: body)
-        .timeout(const Duration(seconds: 30));
-
+        .timeout(const Duration(seconds: 45));
     if (response.statusCode == 200) {
       final data = jsonDecode(response.body) as Map<String, dynamic>;
       final candidates = data['candidates'] as List?;
@@ -72,9 +75,7 @@ class GeminiService {
 
   /// Test connection to the Gemini API.
   /// Returns null on success, or an error message on failure.
-  static Future<String?> testConnection({
-    required String apiKey,
-  }) async {
+  static Future<String?> testConnection({required String apiKey}) async {
     try {
       final result = await processText(
         text: 'Hello',

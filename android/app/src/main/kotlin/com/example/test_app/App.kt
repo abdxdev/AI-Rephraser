@@ -5,6 +5,7 @@ import io.flutter.embedding.engine.FlutterEngine
 import io.flutter.embedding.engine.FlutterEngineCache
 import io.flutter.embedding.engine.dart.DartExecutor
 import io.flutter.FlutterInjector
+import io.flutter.plugins.GeneratedPluginRegistrant
 
 class App : FlutterApplication() {
     companion object {
@@ -16,6 +17,9 @@ class App : FlutterApplication() {
 
         // Create and cache a FlutterEngine for background process text handling
         val flutterEngine = FlutterEngine(this)
+
+        // Register plugins so FlutterSecureStorage, SharedPreferences, etc. work
+        GeneratedPluginRegistrant.registerWith(flutterEngine)
 
         // Start executing Dart code in the background entry point
         val flutterLoader = FlutterInjector.instance().flutterLoader()

@@ -78,15 +78,16 @@ class _ApiSettingsScreenState extends State<ApiSettingsScreen> {
                           IconButton(
                             icon: const Icon(Icons.save),
                             onPressed: () async {
-                              await provider.setApiKey(
-                                _apiKeyController.text.trim(),
-                              );
+                              final key = _apiKeyController.text.trim();
+                              await provider.setApiKey(key);
                               if (context.mounted) {
                                 ScaffoldMessenger.of(context).showSnackBar(
                                   const SnackBar(
-                                    content: Text('API key saved'),
+                                    content: Text('API key saved. Testing connection...'),
                                   ),
                                 );
+                                // Auto-test the connection after saving
+                                provider.testConnection();
                               }
                             },
                           ),

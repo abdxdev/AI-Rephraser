@@ -6,6 +6,7 @@ import android.content.pm.PackageManager
 import android.os.Bundle
 import android.os.Handler
 import android.os.Looper
+import android.util.Log
 import android.view.Gravity
 import android.widget.FrameLayout
 import android.widget.ProgressBar
@@ -14,11 +15,12 @@ import io.flutter.embedding.engine.FlutterEngineCache
 import io.flutter.plugin.common.MethodChannel
 
 class ProcessTextActivity : Activity() {
+    private val TAG = "ProcessTextActivity"
 
     companion object {
         private const val CHANNEL_NAME = "com.example.test_app/process_text"
-        private const val MAX_RETRIES = 10
-        private const val RETRY_DELAY_MS = 300L
+        private const val MAX_RETRIES = 20
+        private const val RETRY_DELAY_MS = 500L
     }
 
     private var hasReturned = false
@@ -38,20 +40,23 @@ class ProcessTextActivity : Activity() {
         // Get the cached FlutterEngine
         val engine = FlutterEngineCache.getInstance().get(App.PROCESS_TEXT_ENGINE_ID)
         if (engine == null) {
+            Log.e(TAG, "FlutterEngine not found in cache")
             Toast.makeText(this, "AI Text not initialized. Please open the app first.", Toast.LENGTH_SHORT).show()
             returnResult(text)
             return
         }
 
+        Log.d(TAG, "Calling Dart with actionId=$actionId, text length=${text.length}")
         callDart(engine, text, actionId, MAX_RETRIES)
 
-        // Timeout: if no result after 15 seconds, return original
+        // Timeout: if no result after 60 seconds, return original
+        // gemini-2.5-flash is a thinking model and can take longer
         Handler(Looper.getMainLooper()).postDelayed({
             if (!hasReturned) {
                 Toast.makeText(this, "Request timed out", Toast.LENGTH_SHORT).show()
                 returnResult(text)
             }
-        }, 15000)
+        }, 60000)
     }
 
     private fun showLoadingOverlay() {
@@ -94,11 +99,13 @@ class ProcessTextActivity : Activity() {
             mapOf("text" to text, "actionId" to actionId),
             object : MethodChannel.Result {
                 override fun success(result: Any?) {
+                    Log.d(TAG, "Dart returned success")
                     val processed = result as? String ?: text
                     returnResult(processed)
                 }
 
                 override fun error(errorCode: String, errorMessage: String?, errorDetails: Any?) {
+                    Log.e(TAG, "Dart returned error: $errorCode - $errorMessage")
                     Toast.makeText(
                         this@ProcessTextActivity,
                         errorMessage ?: "Processing failed",
@@ -108,6 +115,7 @@ class ProcessTextActivity : Activity() {
                 }
 
                 override fun notImplemented() {
+                    Log.w(TAG, "Dart handler not implemented yet, retries left: $retriesLeft")
                     if (retriesLeft > 0) {
                         Handler(Looper.getMainLooper()).postDelayed({
                             callDart(engine, text, actionId, retriesLeft - 1)
