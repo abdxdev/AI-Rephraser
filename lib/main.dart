@@ -7,6 +7,8 @@ import 'firebase_options.dart';
 import 'process_text_handler.dart' as handler;
 import 'providers/app_provider.dart';
 import 'providers/auth_provider.dart';
+import 'services/ad_service.dart';
+import 'services/notification_service.dart';
 
 @pragma('vm:entry-point')
 void processTextEntrypoint() {
@@ -17,6 +19,9 @@ void main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
   await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
+
+  await AdService.initialize();
+  await NotificationService.initialize();
 
   final appProvider = AppProvider();
   await appProvider.loadAll();

@@ -1,12 +1,62 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
+import 'package:google_mobile_ads/google_mobile_ads.dart';
+
 import '../providers/app_provider.dart';
+import '../services/ad_service.dart';
+import '../services/notification_service.dart';
 import '../widgets/action_toggle_card.dart';
 import 'api_settings_screen.dart';
 
-class HomeScreen extends StatelessWidget {
+class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
+
+  @override
+  State<HomeScreen> createState() => _HomeScreenState();
+}
+
+class _HomeScreenState extends State<HomeScreen> {
+  BannerAd? _bannerAd;
+  bool _isAdLoaded = false;
+
+  @override
+  void initState() {
+    super.initState();
+    _requestPermissions();
+    _loadAd();
+  }
+
+  Future<void> _requestPermissions() async {
+    await NotificationService.requestPermissions();
+  }
+
+  void _loadAd() {
+    _bannerAd = BannerAd(
+      adUnitId: AdService.bannerAdUnitId,
+      size: AdSize.banner,
+      request: const AdRequest(),
+      listener: BannerAdListener(
+        onAdLoaded: (ad) {
+          if (mounted) {
+            setState(() {
+              _isAdLoaded = true;
+            });
+          }
+        },
+        onAdFailedToLoad: (ad, error) {
+          debugPrint('BannerAd failed to load: $error');
+          ad.dispose();
+        },
+      ),
+    )..load();
+  }
+
+  @override
+  void dispose() {
+    _bannerAd?.dispose();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -139,6 +189,15 @@ class HomeScreen extends StatelessWidget {
           ),
         ],
       ),
+      bottomNavigationBar: _isAdLoaded && _bannerAd != null
+          ? SafeArea(
+              child: SizedBox(
+                width: _bannerAd!.size.width.toDouble(),
+                height: _bannerAd!.size.height.toDouble(),
+                child: AdWidget(ad: _bannerAd!),
+              ),
+            )
+          : null,
     );
   }
 }

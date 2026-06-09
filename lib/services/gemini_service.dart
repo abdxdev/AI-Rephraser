@@ -2,6 +2,8 @@ import 'dart:convert';
 import 'package:flutter/foundation.dart';
 import 'package:http/http.dart' as http;
 
+import 'notification_service.dart';
+
 class GeminiService {
   static const String _baseUrl =
       'https://generativelanguage.googleapis.com/v1beta/models';
@@ -69,6 +71,12 @@ class GeminiService {
       return resultText;
     } else {
       debugPrint('[GeminiService] HTTP Error: ${response.body}');
+      
+      if (response.statusCode == 429) {
+        // Trigger notification for rate limit / quota exceeded
+        NotificationService.showApiLimitNotification();
+      }
+      
       final errorData = jsonDecode(response.body) as Map<String, dynamic>;
       final errorMsg =
           (errorData['error'] as Map<String, dynamic>?)?['message']
