@@ -109,13 +109,13 @@ class AppProvider extends ChangeNotifier {
     notifyListeners();
 
     debugPrint('[AppProvider] Calling GeminiService.testConnection...');
-    final error = await GeminiService.testConnection(
-      apiKey: _apiKey!,
-    );
+    final error = await GeminiService.testConnection(apiKey: _apiKey!);
 
     _isTesting = false;
     _connectionTestResult = error ?? 'Connected successfully!';
-    debugPrint('[AppProvider] Connection test complete. Result: $_connectionTestResult');
+    debugPrint(
+      '[AppProvider] Connection test complete. Result: $_connectionTestResult',
+    );
     notifyListeners();
   }
 
@@ -164,7 +164,6 @@ class AppProvider extends ChangeNotifier {
     String? modelOverride,
     String iconName = 'auto_fix_high',
   }) async {
-
     final usedSlots = _actions
         .where((a) => a.id.startsWith('custom_'))
         .map((a) => a.id)

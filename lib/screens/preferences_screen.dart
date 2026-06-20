@@ -35,7 +35,6 @@ class PreferencesScreen extends StatelessWidget {
       body: ListView(
         padding: const EdgeInsets.all(16),
         children: [
-
           Card(
             child: Padding(
               padding: const EdgeInsets.all(8),
